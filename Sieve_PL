@@ -1,0 +1,90 @@
+def sito(n=2, m=int):
+    '''Sito Eratostenesa dla liczb naturalnych \n z przedziału obustronnie domkniętego <n, m>.'''
+    import matplotlib.pyplot as plt
+    import time
+    def slow(string=str, x=0.04, **kwargs):
+        formatted_string = string.format(**kwargs)
+        for letter in formatted_string:
+            print(letter, end='')
+            time.sleep(x)
+    while type(n) != int or type(m) != int: #zabezpieczenie przed błędem
+        return slow('Nie podano liczb naturalnych. Spróbuj jeszcze raz.')
+    while n >= m:
+        zmienna = n + m
+        m = zmienna - m
+        n = zmienna - n
+        slow('Zamieniam podane liczby miejscami, aby przedział miał sens. . .')
+        print()
+    slownik = {} #potrzebny do przechowywania liczb i wyników z dzielenia
+    for i in range(n, m+1): #utworzenie rekordów dla poszczególnych liczb naturalnych; zakres m+1, aby m także znajdowało się w zakresie
+        slownik[i] = []
+    for i in range(n, m+1): #zbior_i będzie uzupełniany dzielnikami liczby, jeśli takie istnieją
+        zbior_i = []
+        for j in range(2, i): #jeśli damy i+1, wówczas trzeba będzie przy ostatniej pętli for wyszukiwać zbiorów jednoelementowych, a nie pustych
+            if i % j == 0:
+                zbior_i.append(j)
+        slownik[i] = zbior_i
+    primes = []
+    for i in slownik:
+        if slownik[i] == []:
+            primes.append(i)
+    primes_string = map(str, primes)
+    len_primes = len(primes)
+    time.sleep(1.5)
+    slow('Wśród liczb naturalnych większych bądź równych {n}, ale mniejszych bądź równych {m}, znajdują się:  {title_primes}.', n=n, m=m, title_primes = ', '.join(primes_string))
+    print()
+    time.sleep(0.5)
+    if len_primes == 0:
+        return slow('Oznacza to, że w podanym przedziale nie ma żadnej liczby pierwszej!')
+    elif len_primes == 1:
+        return slow('Oznacza to, że w podanym przedziale jest tylko jedna liczba pierwsza.')
+    else:
+        zmienna = m-n+1
+        slow('Oznacza to, że wśród {zmienna} badanych liczb znajduje się następująca ilość liczb pierwszych: {len_primes}.', zmienna=zmienna, len_primes=len_primes)
+    print()
+    time.sleep(2)
+    min_primes = min(primes)
+    max_primes = max(primes)
+    slow('Najmniejszą liczbą pierwszą w badanym przedziale jest {min_primes}, zaś największą {max_primes}.', min_primes=min_primes, max_primes=max_primes)
+    print()
+    if len_primes % 2 == 0:
+        index_mediana = [int((len_primes/2) - 1), int(len_primes/2)] #chodzi o indeks - ponieważ numeracja listy rozpoczyna się od 0, liczba musi być o 1 mniejsza
+        zmienna1 = primes[index_mediana[0]]
+        zmienna2 = primes[index_mediana[1]]
+        slow('Najbliżej mediany badanego zbioru były następujące liczby pierwsze: {zmienna1} oraz {zmienna2}.', zmienna1=zmienna1, zmienna2=zmienna2)
+    else:
+        index_mediana = round(len_primes/2)
+        zmienna = primes[index_mediana]
+        slow('Najbliżej mediany badanego zbioru była następująca liczba pierwsza: {zmienna}.', zmienna=zmienna)
+    print()
+    #Badanie bliźniaczych liczb pierwszych
+    twin_primes = []
+    time.sleep(2)
+    for i in range(1, len(primes)):
+        zmienna = primes[i] - primes[i-1]
+        if zmienna == 2:
+            twin_primes.append([primes[i-1], primes[i]])
+    if twin_primes == []:
+        slow('W badanym przedziale nie wystąpiły bliźniacze liczby pierwsze,\nczyli pary liczb pierwszych różniących się o 2.')
+        print()
+    else:
+        slownik = {}
+        for i in range(1, len(twin_primes)+1):
+            zmienna_string = ', '.join(map(str, twin_primes[i-1]))
+            slownik[i] = zmienna_string
+        lista = []
+        for i in slownik:
+            lista.append(slownik[i])
+        zmienna = ', '.join(lista)
+        slow('W badanym przedziale wystąpiły następujące bliźniacze liczby pierwsze, czyli pary liczb pierwszych różniących się o 2: {zmienna}', zmienna=zmienna)
+        print()
+    time.sleep(2)
+    slow('Za chwilę zaprezentuję wykresy dotyczące wskazanego przedziału . . .')
+    time.sleep(2)
+    print()
+    plt.plot(primes, primes, 'ro')
+    #plt.axis([0, 2n, 0, 1.1*m])
+    for i in primes:
+        plt.text(i, 1.2*i, str(i), fontsize=12, ha='center', va='bottom')
+    plt.title(f'Rozkład gęstości liczb pierwszych \n w przedziale <{n}, {m}>')
+    plt.show()
