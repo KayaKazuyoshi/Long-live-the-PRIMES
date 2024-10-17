@@ -1,90 +1,95 @@
-def sito(n=2, m=int):
-    '''Sito Eratostenesa dla liczb naturalnych \n z przedziału obustronnie domkniętego <n, m>.'''
-    import matplotlib.pyplot as plt
-    import time
-    def slow(string=str, x=0.04, **kwargs):
-        formatted_string = string.format(**kwargs)
-        for letter in formatted_string:
-            print(letter, end='')
-            time.sleep(x)
-    while type(n) != int or type(m) != int: #zabezpieczenie przed błędem
-        return slow('Nie podano liczb naturalnych. Spróbuj jeszcze raz.')
-    while n >= m:
-        zmienna = n + m
-        m = zmienna - m
-        n = zmienna - n
-        slow('Zamieniam podane liczby miejscami, aby przedział miał sens. . .')
-        print()
-    slownik = {} #potrzebny do przechowywania liczb i wyników z dzielenia
-    for i in range(n, m+1): #utworzenie rekordów dla poszczególnych liczb naturalnych; zakres m+1, aby m także znajdowało się w zakresie
-        slownik[i] = []
-    for i in range(n, m+1): #zbior_i będzie uzupełniany dzielnikami liczby, jeśli takie istnieją
-        zbior_i = []
-        for j in range(2, i): #jeśli damy i+1, wówczas trzeba będzie przy ostatniej pętli for wyszukiwać zbiorów jednoelementowych, a nie pustych
-            if i % j == 0:
-                zbior_i.append(j)
-        slownik[i] = zbior_i
-    primes = []
-    for i in slownik:
-        if slownik[i] == []:
-            primes.append(i)
-    primes_string = map(str, primes)
-    len_primes = len(primes)
-    time.sleep(1.5)
-    slow('Wśród liczb naturalnych większych bądź równych {n}, ale mniejszych bądź równych {m}, znajdują się:  {title_primes}.', n=n, m=m, title_primes = ', '.join(primes_string))
-    print()
-    time.sleep(0.5)
-    if len_primes == 0:
-        return slow('Oznacza to, że w podanym przedziale nie ma żadnej liczby pierwszej!')
-    elif len_primes == 1:
-        return slow('Oznacza to, że w podanym przedziale jest tylko jedna liczba pierwsza.')
-    else:
-        zmienna = m-n+1
-        slow('Oznacza to, że wśród {zmienna} badanych liczb znajduje się następująca ilość liczb pierwszych: {len_primes}.', zmienna=zmienna, len_primes=len_primes)
-    print()
-    time.sleep(2)
-    min_primes = min(primes)
-    max_primes = max(primes)
-    slow('Najmniejszą liczbą pierwszą w badanym przedziale jest {min_primes}, zaś największą {max_primes}.', min_primes=min_primes, max_primes=max_primes)
-    print()
-    if len_primes % 2 == 0:
-        index_mediana = [int((len_primes/2) - 1), int(len_primes/2)] #chodzi o indeks - ponieważ numeracja listy rozpoczyna się od 0, liczba musi być o 1 mniejsza
-        zmienna1 = primes[index_mediana[0]]
-        zmienna2 = primes[index_mediana[1]]
-        slow('Najbliżej mediany badanego zbioru były następujące liczby pierwsze: {zmienna1} oraz {zmienna2}.', zmienna1=zmienna1, zmienna2=zmienna2)
-    else:
-        index_mediana = round(len_primes/2)
-        zmienna = primes[index_mediana]
-        slow('Najbliżej mediany badanego zbioru była następująca liczba pierwsza: {zmienna}.', zmienna=zmienna)
-    print()
-    #Badanie bliźniaczych liczb pierwszych
-    twin_primes = []
-    time.sleep(2)
-    for i in range(1, len(primes)):
-        zmienna = primes[i] - primes[i-1]
-        if zmienna == 2:
-            twin_primes.append([primes[i-1], primes[i]])
-    if twin_primes == []:
-        slow('W badanym przedziale nie wystąpiły bliźniacze liczby pierwsze,\nczyli pary liczb pierwszych różniących się o 2.')
-        print()
-    else:
-        slownik = {}
-        for i in range(1, len(twin_primes)+1):
-            zmienna_string = ', '.join(map(str, twin_primes[i-1]))
-            slownik[i] = zmienna_string
-        lista = []
-        for i in slownik:
-            lista.append(slownik[i])
-        zmienna = ', '.join(lista)
-        slow('W badanym przedziale wystąpiły następujące bliźniacze liczby pierwsze, czyli pary liczb pierwszych różniących się o 2: {zmienna}', zmienna=zmienna)
-        print()
-    time.sleep(2)
-    slow('Za chwilę zaprezentuję wykresy dotyczące wskazanego przedziału . . .')
-    time.sleep(2)
-    print()
-    plt.plot(primes, primes, 'ro')
-    #plt.axis([0, 2n, 0, 1.1*m])
-    for i in primes:
-        plt.text(i, 1.2*i, str(i), fontsize=12, ha='center', va='bottom')
-    plt.title(f'Rozkład gęstości liczb pierwszych \n w przedziale <{n}, {m}>')
-    plt.show()
+import math
+import time
+import matplotlib
+
+class Primes:
+    
+#'''Checking whether there are prime numbers in the range set by the user.\nnum1, num2 are the numbers set\n.primes returns the list of primes.\nMake sure, that libraries: math, matplotlib, time are imported!'''
+    
+    def __init__(self, num1, num2):
+        self.set_numbers(num1, num2)
+        self.prime_selector()
+
+    def set_numbers(self, num1, num2):
+        '''Set new range to conduct the tests.'''
+        if not (isinstance(num1, int) and isinstance(num2, int)):
+            raise ValueError('Invalid variable(s) type(s): only int is acceptable.') #For primes are natural numbers, float type makes no sense here.
+        if num1 < 0 or num2 < 0:
+            raise ValueError('Invalid range: negative primes don\'t exist.')
+        if not num2 > num1:
+            variable = num1 + num2
+            num1 = variable - num1
+            num2 = variable - num2
+            print(f'Attention: numbers were replaced.') #No need to punish the user for the obvoius mistyping :)
+        else:
+            self.num1 = num1
+            self.num2 = num2
+            self.primes = []
+
+    def prime_selector(self):
+        for i in range(self.num1, self.num2+1):
+            if self.is_prime(i):
+                self.primes.append(i)
+
+    def is_prime(self, x):
+        if x < 2: #Obviously, 0 and 1 are ex definitione neither prime nor composite numbers.
+            return False
+        elif x == 2: #The only even exception :)
+            return True
+        else:
+            if x % 2 == 0: #No need to check other even numbers - they are all composite. Or... aren't they...?
+                return False
+            else:
+                for i in range(3, math.ceil(x**0.5)+1, 2): #Here's the fun: to optimalize, only divisors lower than the square root of x are considered. Plus, the range starts with 3, as 2 has been already checked.
+                    if x % i == 0: #One divisor is enough to tell that x is definitelly a composite number.
+                        return False
+                return True
+
+    def showtime(self):
+        '''Showing all prime numbers from the range.'''
+        if not self.primes:
+            return f'Sadly, there are no prime numbers in the range :('
+        else:
+            prime_string = map(str, self.primes)
+            prime_string = ', '.join(prime_string)
+            return f'Ladies and gentleman, here they are: {prime_string}. It makes a total number of {len(self.primes)} prime numbers.'
+
+    def minmax(self):
+        '''Showing the lowest and highest prime numbers from the range.'''
+        return print(f'The lowest prime number from the range is {min(self.primes)}, \nwhereas the highest is {max(self.primes)}.') 
+
+    def twins(self):
+        '''Checking whether there are twin primes in the range.'''
+        twins_list = []
+        for i in self.primes:
+            if i+2 in self.primes: #The simpliest way to check the twins, as their subtraction is always 2.
+                twins_list.append((i, i+2))
+        if not twins_list:
+            return f'Sadly, there are no twin primes in the range :('
+        else:
+            self.twins = twins_list
+            twin_string = map(str, twins_list)
+            twin_string = ', '.join(twin_string)
+            return f'Twin primes in the range are: {twin_string}.'
+
+    def percent(self):
+        '''Showing the percent of prime numbers compared to all numbers in the range.'''
+        total_amount = self.num2 - self.num1 + 1
+        return round((len(self.primes)/total_amount)*100, 4)#print(f'There are {len(self.primes)} prime numbers in the range of {total_amount} numbers: between {self.num1} and {self.num2}.\nTherefore, the probability of getting prime number in the range equals {round((len(self.primes)/total_amount)*100, 4)} %.')
+
+    #def plot(self):
+       # '''Presenting plots of density of prime numbers in the range.''' 
+
+#Sample of what can we do with the class Primes:
+
+var_list = ['first', 'second', 'third', 'forth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth']
+var_numbers = []
+
+for i in range(1, 1001, 100): #We're goint to check the percentage of prime numbers in the first 1000 natural numbers.
+    var_numbers.append((i, i+99))
+
+var_dict = {name: Primes(numbers[0], numbers[1]) for name, numbers in zip(var_list, var_numbers)} #Usage of dictionary comprehension: 'mapping' without map funtcion.
+results = [[name, primes.percent()] for name, primes in var_dict.items()] #Usage of list comprehension: see above.
+
+for i in results:
+    print(f'In the {i[0]} hundred numbers there are {i[1]} % prime numbers.') #Presenting the final results.
